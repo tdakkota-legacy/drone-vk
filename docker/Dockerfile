@@ -16,13 +16,16 @@ COPY . .
 # Build
 ENV CGO_ENABLED=0
 RUN go generate ./... && go fmt ./...
-RUN go build -v cmd/plugin.go
+RUN go build -v -o drone-vk cmd/plugin.go
 
-# create scratch image
 FROM plugins/base:linux-amd64
 
-# Copy our static executable.
-COPY --from=builder ./plugin ./plugin
+LABEL maintainer="tdakkota" \
+  org.label-schema.name="Drone VK" \
+  org.label-schema.vendor="tdakkota" \
+  org.label-schema.schema-version="1.0"
 
-# Run the hello binary.
-ENTRYPOINT ["./plugin"]
+COPY --from=builder /app/drone-vk /bin/drone-vk
+
+# Run the binary
+ENTRYPOINT ["/bin/drone-vk"]
