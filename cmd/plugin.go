@@ -20,17 +20,17 @@ func createApp(callback cli.ActionFunc) *cli.App {
 		cli.StringFlag{
 			Name:   "token",
 			Usage:  "VK token",
-			EnvVar: "VK_TOKEN,TOKEN",
+			EnvVar: "VK_TOKEN,TOKEN,PLUGIN_TOKEN",
 		},
 		cli.StringFlag{
 			Name:   "user",
 			Usage:  "VK user to send message",
-			EnvVar: "VK_USER,TO",
+			EnvVar: "VK_USER,PLUGIN_USER,PLUGIN_TO",
 		},
 		cli.IntFlag{
 			Name:   "peer_id",
 			Usage:  "Peer user to send message",
-			EnvVar: "VK_PEER_ID,TO",
+			EnvVar: "VK_PEER_ID,PLUGIN_PEER_ID",
 		},
 		cli.StringSliceFlag{
 			Name:   "message",
