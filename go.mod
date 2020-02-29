@@ -1,6 +1,6 @@
 module drone-vk
 
-go 1.14
+go 1.13
 
 require (
 	github.com/SevereCloud/vksdk v1.2.1
