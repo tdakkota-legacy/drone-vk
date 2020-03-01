@@ -6,14 +6,14 @@ import (
 )
 
 // Default template
-const DefaultTemplate = `{{ .BuildInfo.Status.Icon }} {{ .RepoInfo.FullName }}.
+const DefaultTemplate = `{{ .BuildInfo.Status.Icon }} {{ .RepoInfo.ParsedName }}.
 Build {{ .BuildInfo.Number }}  {{ .BuildInfo.Status.Message }}
 {{ .CommitInfo.Author }} pushed {{ .CommitInfo.Sha }} to {{ .CommitInfo.Branch }} — {{ .CommitInfo.Message }}
 {{ .BuildInfo.Link }}
 `
 
 // drone-telegram like template
-const DroneTelegramTemplate = `{{ .BuildInfo.Status.Icon }} Build {{ .BuildInfo.Number }} of {{ .RepoInfo.FullName }} {{ .BuildInfo.Status.Message }}.
+const DroneTelegramTemplate = `{{ .BuildInfo.Status.Icon }} Build {{ .BuildInfo.Number }} of {{ .RepoInfo.ParsedName }} {{ .BuildInfo.Status.Message }}.
 📝 Commit by {{ .CommitInfo.Author }} on {{ .CommitInfo.Branch }}:
 	{{ .CommitInfo.Message }}
 

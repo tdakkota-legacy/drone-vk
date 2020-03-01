@@ -2,41 +2,58 @@ package main
 
 import (
 	"drone-vk/plugin"
-	"errors"
-	"fmt"
-	"github.com/SevereCloud/vksdk/api"
-	"github.com/SevereCloud/vksdk/api/params"
 	"github.com/urfave/cli"
 	"log"
 	"os"
 )
 
-func createApp(callback cli.ActionFunc) *cli.App {
-	app := cli.NewApp()
-	app.Name = "vk_plugin"
-	app.Action = callback
-
-	app.Flags = []cli.Flag{
+func pluginFlags() []cli.Flag {
+	return []cli.Flag{
 		cli.StringFlag{
 			Name:   "token",
 			Usage:  "VK token",
 			EnvVar: "VK_TOKEN,TOKEN,PLUGIN_TOKEN",
 		},
-		cli.StringFlag{
-			Name:   "user",
-			Usage:  "VK user to send message",
-			EnvVar: "VK_USER,PLUGIN_USER,PLUGIN_TO",
-		},
 		cli.IntFlag{
 			Name:   "peer_id",
-			Usage:  "Peer user to send message",
-			EnvVar: "VK_PEER_ID,PLUGIN_PEER_ID",
+			Usage:  "User/Chat to send message",
+			EnvVar: "VK_PEER_ID,PLUGIN_TO,PLUGIN_PEER_ID",
 		},
-		cli.StringSliceFlag{
-			Name:   "message",
+		cli.StringFlag{
+			Name:   "template",
 			Usage:  "message text template",
-			EnvVar: "VK_MESSAGE,MESSAGE",
+			EnvVar: "VK_TEMPLATE,TEMPLATE,PLUGIN_TEMPLATE",
 		},
+		cli.StringFlag{
+			Name:   "image",
+			Usage:  "image to send",
+			EnvVar: "VK_IMAGE,IMAGE,PLUGIN_IMAGE",
+		},
+		cli.StringFlag{
+			Name:   "file",
+			Usage:  "file to send",
+			EnvVar: "VK_FILE,FILE,PLUGIN_FILE",
+		},
+		cli.StringFlag{
+			Name:   "file.type",
+			Usage:  "can be doc(default), graffiti, audio_message",
+			EnvVar: "VK_FILE_TYPE,FILE_TYPE,PLUGIN_FILE_TYPE",
+		},
+		cli.IntFlag{
+			Name:   "sticker",
+			Usage:  "sticker(id) to send",
+			EnvVar: "VK_STICKER,STICKER,PLUGIN_STICKER",
+		},
+		cli.StringFlag{
+			Name:   "poll",
+			Usage:  "poll to send",
+			EnvVar: "VK_POLL,POLL,PLUGIN_POLL",
+		},
+	}
+}
+
+func droneFlags() []cli.Flag {
+	return []cli.Flag{
 		cli.StringFlag{
 			Name:   "repo",
 			Usage:  "repository owner and repository name",
@@ -135,6 +152,16 @@ func createApp(callback cli.ActionFunc) *cli.App {
 			Usage:  "job finished",
 			EnvVar: "DRONE_BUILD_FINISHED",
 		},
+		cli.StringFlag{
+			Name:   "deploy.to",
+			Usage:  "Provides the target deployment environment for the running build. This value is only available to promotion and rollback pipelines.",
+			EnvVar: "DRONE_DEPLOY_TO",
+		},
+	}
+}
+
+func githubFlags() []cli.Flag {
+	return []cli.Flag{
 		cli.BoolFlag{
 			Name:   "github",
 			Usage:  "Boolean value, indicates the runtime environment is GitHub Action.",
@@ -165,50 +192,26 @@ func createApp(callback cli.ActionFunc) *cli.App {
 			Usage:  "The GitHub workspace path. Value: /github/workspace.",
 			EnvVar: "GITHUB_WORKSPACE",
 		},
-		cli.StringFlag{
-			Name:   "deploy.to",
-			Usage:  "Provides the target deployment environment for the running build. This value is only available to promotion and rollback pipelines.",
-			EnvVar: "DRONE_DEPLOY_TO",
-		},
 	}
+}
 
+func allFlags() []cli.Flag {
+	flags := pluginFlags()
+	flags = append(flags, droneFlags()...)
+	flags = append(flags, githubFlags()...)
+	return flags
+}
+
+func createApp(callback cli.ActionFunc) *cli.App {
+	app := cli.NewApp()
+	app.Name = "vk_plugin"
+	app.Action = callback
+	app.Flags = allFlags()
 	return app
 }
 
-func app(c *cli.Context) error {
-	token := c.String("token")
-	if len(token) == 0 {
-		return errors.New("invalid token")
-	}
-
-	message, err := plugin.ExecuteTemplate(plugin.DroneTelegramTemplate, plugin.ParseInfo(c))
-	if err != nil {
-		return fmt.Errorf("failed to execute template: %v", err)
-	}
-
-	vk := api.Init(token)
-	b := params.NewMessagesSendBuilder()
-	b.Message(message)
-	b.RandomID(0)
-
-	if user := c.String("user"); user != "" {
-		b.Domain(user)
-	} else if peerID := c.Int("peer_id"); peerID != 0 {
-		b.PeerID(peerID)
-	} else {
-		return errors.New("user or peer_id arg must be set")
-	}
-
-	_, err = vk.MessagesSend(b.Params)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func main() {
-	if err := createApp(app).Run(os.Args); err != nil {
+	if err := createApp(plugin.Plugin{}.App).Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
 }
