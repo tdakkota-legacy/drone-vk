@@ -20,10 +20,11 @@ RUN go build -v -o drone-vk cmd/plugin.go
 
 FROM plugins/base:linux-amd64
 
-LABEL maintainer="tdakkota" \
-  org.label-schema.name="Drone VK" \
-  org.label-schema.vendor="tdakkota" \
-  org.label-schema.schema-version="1.0"
+LABEL maintainer="tdakkota"
+LABEL org.label-schema.name="Drone VK"
+LABEL org.label-schema.vendor="tdakkota"
+LABEL org.label-schema.schema-version="1.0"
+LABEL org.label-schema.vcs-url="https://github.com/tdakkota/drone-vk"
 
 COPY --from=builder /app/drone-vk /bin/drone-vk
 
