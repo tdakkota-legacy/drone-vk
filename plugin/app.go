@@ -42,18 +42,26 @@ func (p Plugin) buildMessage() (api.Params, error) {
 		template = DroneTelegramTemplate
 	}
 
-	message, err := ExecuteTemplate(template, ParseInfo(p.c))
+	b := params.NewMessagesSendBuilder()
+
+	info := ParseInfo(p.c)
+	message, err := ExecuteTemplate(template, info)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute template: %v", err)
 	}
+	b.Message(message)
 
 	peerID := p.c.Int("peer_id")
 	if peerID == 0 {
 		return nil, errors.New("peer_id arg must be set")
 	}
+	b.PeerID(peerID)
+
+	if stickerID := p.c.Int("sticker_id"); stickerID != 0 {
+		b.StickerID(stickerID)
+	}
 
 	var attachments []string
-
 	if attachment, err := p.checkImage(peerID); err != nil {
 		return nil, err
 	} else {
@@ -66,11 +74,10 @@ func (p Plugin) buildMessage() (api.Params, error) {
 		attachments = append(attachments, attachment)
 	}
 
-	b := params.NewMessagesSendBuilder()
-	b.Message(message)
 	b.Attachment(attachments)
+
+	b.DontParseLinks(p.c.Bool("dont_parse_links"))
 	b.RandomID(0)
-	b.PeerID(peerID)
 	return b.Params, nil
 }
 
@@ -117,7 +124,7 @@ func (p Plugin) checkImage(peerId int) (string, error) {
 }
 
 func (p Plugin) checkDoc(peerId int) (string, error) {
-	if image := p.c.String("file"); image != "" {
+	if doc := p.c.String("file.name"); doc != "" {
 		b := params.NewDocsGetMessagesUploadServerBuilder()
 		b.PeerID(peerId)
 
@@ -130,7 +137,7 @@ func (p Plugin) checkDoc(peerId int) (string, error) {
 			return "", fmt.Errorf("failed to get upload server: %v", err)
 		}
 
-		upload, err := NewUploader(r.UploadURL).UploadDoc(image)
+		upload, err := NewUploader(r.UploadURL).UploadDoc(doc)
 		if err != nil {
 			return "", fmt.Errorf("failed to upload doc: %v", err)
 		}

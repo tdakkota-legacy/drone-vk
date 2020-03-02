@@ -30,7 +30,7 @@ func pluginFlags() []cli.Flag {
 			EnvVar: "VK_IMAGE,IMAGE,PLUGIN_IMAGE",
 		},
 		cli.StringFlag{
-			Name:   "file",
+			Name:   "file.name",
 			Usage:  "file to send",
 			EnvVar: "VK_FILE,FILE,PLUGIN_FILE",
 		},
@@ -48,6 +48,11 @@ func pluginFlags() []cli.Flag {
 			Name:   "poll",
 			Usage:  "poll to send",
 			EnvVar: "VK_POLL,POLL,PLUGIN_POLL",
+		},
+		cli.BoolFlag{
+			Name:   "dont_parse_links",
+			Usage:  "does not create links preview",
+			EnvVar: "VK_DONT_PARSE_LINKS,DONT_PARSE_LINKS,PLUGIN_DONT_PARSE_LINKS",
 		},
 	}
 }
