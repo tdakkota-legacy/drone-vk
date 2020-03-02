@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/SevereCloud/vksdk/api"
 	"github.com/SevereCloud/vksdk/api/params"
+	"github.com/SevereCloud/vksdk/object"
 	"github.com/urfave/cli"
 )
 
@@ -61,6 +62,10 @@ func (p Plugin) buildMessage() (api.Params, error) {
 		b.StickerID(stickerID)
 	}
 
+	if p.c.Bool("keyboard") {
+		b.Keyboard(p.buildKeyboard(info))
+	}
+
 	var attachments []string
 	if attachment, err := p.checkImage(peerID); err != nil {
 		return nil, err
@@ -75,7 +80,6 @@ func (p Plugin) buildMessage() (api.Params, error) {
 	}
 
 	b.Attachment(attachments)
-
 	b.DontParseLinks(p.c.Bool("dont_parse_links"))
 	b.RandomID(0)
 	return b.Params, nil
@@ -87,6 +91,21 @@ func attachmentString(t string, userID, ID int, accessKey string) string {
 	}
 
 	return fmt.Sprintf("%s%d_%d", t, userID, ID)
+}
+
+func (p Plugin) buildKeyboard(info Info) object.MessagesKeyboard {
+	keyboard := object.NewMessagesKeyboardInline()
+	keyboard.AddRow()
+
+	if info.CommitInfo.Link != "" {
+		keyboard.AddOpenLinkButton(info.CommitInfo.Link, "Commit Link", "")
+	}
+
+	if info.BuildInfo.Link != "" {
+		keyboard.AddOpenLinkButton(info.BuildInfo.Link, "Build Link", "")
+	}
+
+	return keyboard
 }
 
 func (p Plugin) checkImage(peerId int) (string, error) {

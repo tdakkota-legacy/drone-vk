@@ -44,10 +44,10 @@ func pluginFlags() []cli.Flag {
 			Usage:  "sticker(id) to send",
 			EnvVar: "VK_STICKER,STICKER,PLUGIN_STICKER",
 		},
-		cli.StringFlag{
-			Name:   "poll",
-			Usage:  "poll to send",
-			EnvVar: "VK_POLL,POLL,PLUGIN_POLL",
+		cli.BoolFlag{
+			Name:   "keyboard",
+			Usage:  "sends links as bot keyboard if true",
+			EnvVar: "VK_KEYBOARD,KEYBOARD,PLUGIN_KEYBOARD",
 		},
 		cli.BoolFlag{
 			Name:   "dont_parse_links",
