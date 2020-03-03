@@ -98,11 +98,11 @@ func (p Plugin) buildKeyboard(info Info) object.MessagesKeyboard {
 	keyboard.AddRow()
 
 	if info.CommitInfo.Link != "" {
-		keyboard.AddOpenLinkButton(info.CommitInfo.Link, "Commit Link", "")
+		keyboard.AddOpenLinkButton(info.CommitInfo.Link, "Commit", "")
 	}
 
 	if info.BuildInfo.Link != "" {
-		keyboard.AddOpenLinkButton(info.BuildInfo.Link, "Build Link", "")
+		keyboard.AddOpenLinkButton(info.BuildInfo.Link, "Build", "")
 	}
 
 	return keyboard
