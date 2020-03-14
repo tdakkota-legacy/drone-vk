@@ -20,9 +20,14 @@ func pluginFlags() []cli.Flag {
 			EnvVar: "VK_PEER_ID,PLUGIN_TO,PLUGIN_PEER_ID",
 		},
 		cli.StringFlag{
-			Name:   "template",
+			Name:   "template.text",
 			Usage:  "message text template",
 			EnvVar: "VK_TEMPLATE,TEMPLATE,PLUGIN_TEMPLATE",
+		},
+		cli.StringFlag{
+			Name:   "template.file",
+			Usage:  "message text template file",
+			EnvVar: "VK_FILE_TEMPLATE,FILE_TEMPLATE,PLUGIN_FILE_TEMPLATE",
 		},
 		cli.StringFlag{
 			Name:   "image",

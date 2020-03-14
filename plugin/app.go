@@ -7,6 +7,8 @@ import (
 	"github.com/SevereCloud/vksdk/api/params"
 	"github.com/SevereCloud/vksdk/object"
 	"github.com/urfave/cli"
+	"io/ioutil"
+	"os"
 )
 
 type Plugin struct {
@@ -37,19 +39,40 @@ func (p Plugin) App(c *cli.Context) error {
 	return nil
 }
 
-func (p Plugin) buildMessage() (api.Params, error) {
-	template := p.c.String("template")
+func (p Plugin) getTemplate() (template string, err error) {
+	if v := p.c.String("template.file"); v != "" {
+		if _, err := os.Stat(v); os.IsNotExist(err) {
+			return "", fmt.Errorf("file '%s' doesn't exists", v)
+		}
+
+		t, err := ioutil.ReadFile(v)
+		if err != nil {
+			return "", err
+		}
+
+		return string(t), nil
+	}
+
+	template = p.c.String("template.text")
 	if template == "" {
 		template = DroneTelegramTemplate
 	}
+	return
+}
 
-	b := params.NewMessagesSendBuilder()
+func (p Plugin) buildMessage() (api.Params, error) {
+	template, err := p.getTemplate()
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute template: %v", err)
+	}
 
 	info := ParseInfo(p.c)
 	message, err := ExecuteTemplate(template, info)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute template: %v", err)
 	}
+
+	b := params.NewMessagesSendBuilder()
 	b.Message(message)
 
 	peerID := p.c.Int("peer_id")
