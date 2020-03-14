@@ -1,7 +1,7 @@
 package main
 
 import (
-	"drone-vk/plugin"
+	"github.com/tdakkota/drone-vk/plugin"
 	"github.com/urfave/cli"
 	"log"
 	"os"

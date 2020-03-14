@@ -1,4 +1,4 @@
-module drone-vk
+module github.com/tdakkota/drone-vk
 
 go 1.13
 
