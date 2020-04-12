@@ -24,7 +24,7 @@ func (p Plugin) App(c *cli.Context) error {
 		return errors.New("invalid token")
 	}
 
-	p.api = api.Init(token)
+	p.api = api.NewVK(token)
 
 	b, err := p.buildMessage()
 	if err != nil {
